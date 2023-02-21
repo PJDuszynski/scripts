@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+/usr/bin/code --install-extension be5invis.vscode-custom-css --force </dev/null &>/dev/null
+/usr/bin/code --install-extension gabrielgrinberg.auto-run-command --force </dev/null &>/dev/null
+
+tee "$HOME/.rgb.css" >/dev/null <<EOF 
+@keyframes rainbow{
+    100%,0%{
+        color: rgb(255,0,0);
+    }
+    8%{
+        color: rgb(255,127,0);
+    }
+    16%{
+        color: rgb(255,255,0);
+    }
+    25%{
+        color: rgb(127,255,0);
+    }
+    33%{
+        color: rgb(0,255,0);
+    }
+    41%{
+        color: rgb(0,255,127);
+    }
+    50%{
+        color: rgb(0,255,255);
+    }
+    58%{
+        color: rgb(0,127,255);
+    }
+    66%{
+        color: rgb(0,0,255);
+    }
+    75%{
+        color: rgb(127,0,255);
+    }
+    83%{
+        color: rgb(255,0,255);
+    }
+    91%{
+        color: rgb(255,0,127);
+    }
+}
+
+div,span {
+    animation: rainbow 2.45s linear;
+    animation-iteration-count: infinite;
+}
+EOF
+
+sudo chown -R "$(whoami)" "$(which code)"
+sudo chown -R "$(whoami)" "/opt/visual-studio-code"
+
+
+string="{\"vscode_custom_css.imports\":[\"file://$HOME/.rgb.css\"],
+\"auto-run-command.rules\": [
+    {
+      \"condition\": [
+        \"always\"
+      ],
+    \"command\": \"notifications.toggleDoNotDisturbMode\",
+      \"message\": \"Super condition met. Running \"
+    },
+    {
+      \"condition\": [
+        \"always\"
+      ],
+      \"command\": \"extension.installCustomCSS\",
+      \"message\": \"Super condition met. Running \"
+    }
+  ]
+}"
+
+cat "$HOME/.config/Code/User/settings.json" | jq ". + $string" | \
+tee "$HOME/.config/Code/User/settings.json" >/dev/null
+
+code </dev/null &>/dev/null &
+sleep 5
+kill $(pidof code)
+
+# rm_string="{\"auto-run-command.rules\": [
+#         {
+#       \"condition\": [
+#         \"always\"
+#       ],
+#     \"command\": \"notifications.toggleDoNotDisturbMode\",
+#       \"message\": \"Super condition met. Running \"
+#     },
+#     {
+#       \"condition\": [
+#         \"always\"
+#       ],
+#     \"command\": \"notifications.toggleDoNotDisturbMode\",
+#       \"message\": \"Super condition met. Running \"
+#     }
+#   ]
+# }"
+
+#code --uninstall-extension gabrielgrinberg.auto-run-command --force > /dev/null
+
+#cat "$HOME/.config/Code/User/settings.json" | jq ". - $rm_string " | \
+#tee "$HOME/.config/Code/User/settings.json" >/dev/null
